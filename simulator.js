@@ -261,7 +261,7 @@
     }
     const track = view.track, metadata = track.metadata || {}, source = metadata.source_url;
     const vehicle = view.vehicle.wheels.vehicle;
-    byId('profile-values').textContent = fmt(vehicle.vehicle_mass_kg, 0) + ' kg total mass · ' + fmt(vehicle.center_of_gravity_to_front_axle_m + vehicle.center_of_gravity_to_rear_axle_m, 3) + ' m wheelbase · ' + fmt(view.vehicle.maximum_speed_mps * 3.6, 0) + ' km/h model speed cap. Values and remaining assumptions are documented in CAR_DATA.md.';
+    byId('profile-values').textContent = fmt(vehicle.vehicle_mass_kg, 0) + ' kg total mass · ' + fmt(vehicle.center_of_gravity_to_front_axle_m + vehicle.center_of_gravity_to_rear_axle_m, 3) + ' m wheelbase · ' + fmt(view.vehicle.maximum_speed_mps * 3.6, 0) + ' km/h model speed cap. Values and remaining assumptions are documented in LAP_TIME_MODEL.md.';
     byId('track-caption').textContent = track.name + ' · ' + fmt(track.length_m) + ' m · ' + fmt(track.width_m[0]) + ' m road · car shown to scale';
     byId('track-source').innerHTML = metadata.kind === 'real' ?
       escape(metadata.layout_note || 'Historical approximate circuit centerline.') + ' ' + escape(metadata.width_note || 'Uniform width override.') + ' ' +
