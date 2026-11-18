@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Brake bias · Lap-time lab</title>
+  <style>
+    :root { color-scheme: light dark; --bg:light-dark(#f6f7f8,#15191d); --surface:light-dark(#fff,#20262d); --ink:light-dark(#18232d,#ecf0f3); --muted:light-dark(#566574,#aab8c6); --line:light-dark(#dce2e7,#3b4650); --road:light-dark(#dce2e7,#3b4650); --blue:light-dark(#1261a0,#6bb6f0); --orange:light-dark(#ba501a,#ffab77); --green:light-dark(#247248,#7ed3a5); --error:light-dark(#ab2929,#ffaaaa); }
+    :root { --brake-light:light-dark(#167d72,#66d7c5); --brake-medium:light-dark(#a96700,#f6bd56); --brake-hard:light-dark(#c22b43,#ff7c8e); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,sans-serif; }
+    main { max-width:1220px; margin:auto; padding:28px; }
+    header { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:24px; }
+    h1 { font-size:25px; font-weight:600; margin:0; letter-spacing:-.6px; }
+    h2 { font-size:17px; font-weight:600; margin:0 0 12px; }
+    p { margin:4px 0; } .muted { color:var(--muted); } .small { font-size:12px; }
+    .layout { display:grid; grid-template-columns:265px minmax(0,1fr); gap:22px; align-items:start; }
+    .panel { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px; }
+    .controls { display:grid; gap:13px; }
+    label { display:block; } label .value { float:right; font-variant-numeric:tabular-nums; }
+    input[type=range] { width:100%; accent-color:var(--blue); }
+    select,button { font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px; }
+    select { width:100%; } button { cursor:pointer; } button:disabled { opacity:.55; cursor:wait; }
+    button.primary { background:var(--blue); color:light-dark(#fff,#102536); border-color:var(--blue); }
+    :focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
+    .results { display:grid; gap:18px; min-width:0; }
+    .viz-pair { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(230px,1fr); gap:16px; }
+    svg { display:block; width:100%; color:var(--ink); } svg text { fill:var(--ink); font:12px system-ui,sans-serif; }
+    #track-scene,#car-scene { height:340px; } #speed-chart { height:205px; }
+    progress { width:100%; height:8px; accent-color:var(--blue); }
+    .stats { display:flex; flex-wrap:wrap; gap:20px; margin:12px 0; } .stats strong { display:block; font-size:22px; font-weight:500; font-variant-numeric:tabular-nums; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; } .row select { width:auto; max-width:100%; flex:1; }
+    .seek { display:grid; grid-template-columns:auto minmax(50px,1fr); gap:12px; align-items:center; }
+    table { width:100%; border-collapse:collapse; font-size:13px; } th,td { padding:7px 5px; border-bottom:1px solid var(--line); text-align:right; font-variant-numeric:tabular-nums; } th:first-child,td:first-child { text-align:left; }
+    .table-scroll { overflow-x:auto; }
+    tr.selected { background:color-mix(in srgb,var(--blue) 9%,transparent); } table button { padding:0; border:0; background:none; text-align:left; font-size:inherit; }
+    .status { min-height:24px; } .error { color:var(--error); } [hidden] { display:none!important; }
+    details { margin-top:6px; } summary { cursor:pointer; }
+    .key { display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:5px; }
+    @media(max-width:900px) { .layout { grid-template-columns:1fr; } .controls { grid-template-columns:repeat(2,minmax(0,1fr)); } .controls h2,.controls details,.controls button,.controls .full { grid-column:1/-1; } }
+    @media(max-width:620px) { main { padding:16px; } header { align-items:start; flex-direction:column; } .viz-pair { grid-template-columns:1fr; } .controls { grid-template-columns:1fr; } h1 { font-size:23px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div><p class="muted small">VEHICLE DYNAMICS / BRAKE DISTRIBUTION</p><h1>Lap-time lab</h1></div><span class="muted small">Local simulation · track preview loads independently</span></header>
+  <div class="layout">
+    <form id="settings" class="panel controls">
+      <h2>Comparison inputs</h2>
+      <label>Car profile<select name="profile"><option value="illustrative">Original illustrative vehicle</option></select></label>
+      <p class="small muted full" id="profile-note">Loading car profile…</p>
+      <p class="small muted full" id="profile-values"></p>
+      <label>Track<select name="track"><optgroup label="Real circuits · 2020 layout data"><option value="monza">Monza</option><option value="montreal">Montréal · Circuit Gilles-Villeneuve</option><option value="catalunya">Barcelona-Catalunya · historical chicane</option></optgroup><optgroup label="Synthetic test tracks"><option value="oval" selected>Braking oval</option><option value="figure-eight">Figure-eight</option><option value="technical">Technical loop</option><option value="circle">Constant-radius circle</option></optgroup></select></label>
+      <p class="small muted full" id="track-preset-note">Synthetic test geometry. Road width remains adjustable.</p>
+      <label>Layout orientation<select name="mirrored"><option value="false">Original</option><option value="true">Mirrored left/right · test geometry</option></select></label>
+      <label>Road width <output class="value" data-for="width"></output><input name="width" type="range" min="2" max="20" step=".1" value="3" data-unit="m"></label>
+      <label>Front wheel track <output class="value" data-for="front_track"></output><input name="front_track" type="range" min=".9" max="1.8" step=".01" value="1.2" data-unit="m"></label>
+      <label>Rear wheel track <output class="value" data-for="rear_track"></output><input name="rear_track" type="range" min=".9" max="1.8" step=".01" value="1.2" data-unit="m"></label>
+      <label>Front braking preference <output class="value" data-for="front_bias"></output><input name="front_bias" type="range" min="0" max="100" step="1" value="60" data-unit="%"></label>
+      <label>Left/right assistance strength <output class="value" data-for="strength"></output><input name="strength" type="range" min="0" max="100" step="1" value="50" data-unit="% of reference"></label>
+      <label>Compare<select name="configurations"><option value="active" selected>Conventional + independent · 2 profiles</option><option value="fiddle">Conventional + inside-rear fiddle brake · 2 profiles</option><option value="all">Passive valve study · 6 profiles</option></select></label>
+      <details><summary>Research limits</summary><div class="controls" style="margin-top:12px">
+        <label>Added brake-yaw cap <output class="value" data-for="yaw_limit"></output><input name="yaw_limit" type="range" min="0" max="500" step="10" value="120" data-unit="N·m"></label>
+        <label>Friction coefficient <output class="value" data-for="friction"></output><input name="friction" type="range" min=".5" max="2" step=".05" value="1.5" data-unit=""></label>
+        <label>Passive valve knee <output class="value" data-for="valve_knee_bar"></output><input name="valve_knee_bar" type="range" min="1" max="80" step="1" value="20" data-unit="bar"></label>
+        <label>Track sample spacing<select name="spacing"><option value="8">8 m · coarse preview</option><option value="4">4 m · circuit preview</option><option value="2" selected>2 m · standard</option><option value="1">1 m · finer check</option></select></label>
+      </div></details>
+      <button class="primary" id="run" type="submit" disabled>Run comparison</button>
+      <button id="cancel" type="button" hidden>Cancel calculation</button>
+      <p class="small muted full">Independent mode scales the capacity-matched left/right differential. Fiddle-brake mode adds braking only at the inside rear wheel, using strength and yaw limits; normal braking remains available. Its extra rear braking changes the total front/rear split. Passive valve locations stay fixed.</p>
+    </form>
+    <section class="results">
+      <div id="status" class="status" role="status" aria-live="polite">Loading the track preview…</div>
+      <progress id="calculation-progress" max="2" value="0" hidden aria-label="Configurations completed"></progress>
+      <div class="panel" id="result-panel" hidden>
+        <div class="row"><h2 style="margin:0" id="view-title">Track preview</h2><select id="strategy" aria-label="Selected brake configuration" disabled></select></div>
+        <p class="small muted" id="result-state">Choose the inputs and run a comparison for lap predictions.</p>
+        <div class="stats"><div><span class="small muted">Predicted lap</span><strong id="lap-time">—</strong></div><div><span class="small muted">Difference vs conventional</span><strong id="delta">—</strong></div><div><span class="small muted">At selected position</span><strong id="speed">—</strong></div></div>
+        <div class="viz-pair">
+          <div><svg id="track-scene" role="img" aria-label="Car and calculated braking zones on the selected track"></svg><p class="small muted" id="track-caption"></p><p class="small muted" id="track-source"></p></div>
+          <div><svg id="car-scene" role="img" aria-label="Selected car snapshot with four wheel force arrows"></svg><p class="small"><span class="key" style="background:var(--orange)"></span>Braking <span class="key" style="background:var(--green)"></span>Drive <span class="key" style="background:var(--blue)"></span>Lateral force</p></div>
+        </div>
+        <p class="small"><span class="key" style="background:var(--brake-light)"></span>Light 0.05–0.3 g <span class="key" style="background:var(--brake-medium)"></span>Medium 0.3–0.7 g <span class="key" style="background:var(--brake-hard)"></span>Hard ≥0.7 g</p>
+        <p class="small muted" id="braking-summary"></p>
+        <p class="small muted">Colors show calculated deceleration while the brakes are applied. These are display categories, not measured circuit telemetry.</p>
+        <div class="seek"><button type="button" id="play" disabled>Play lap</button><input id="seek" aria-label="Distance along track" type="range" min="0" max="1000" step="1" value="0" disabled></div>
+        <p class="small muted" id="position-detail"></p>
+        <p class="small">Orange wheel outlines indicate the auxiliary fiddle brake. Fx arrows show net tire force, which can remain positive while throttle and braking overlap.</p>
+        <div class="table-scroll"><table><thead><tr><th>Wheel</th><th>Load N</th><th>Fx N</th><th>Fy N</th><th>Aux brake N</th><th>Grip used</th></tr></thead><tbody id="wheel-details"></tbody></table></div>
+      </div>
+      <div class="panel" id="comparison-panel" hidden><h2>Same track, same driving line</h2><table><thead><tr><th>Brake configuration</th><th>Lap s</th><th>Δ s</th></tr></thead><tbody id="comparison"></tbody></table><p class="small error" id="comparison-errors" hidden></p><svg id="speed-chart" role="img" aria-label="Speed profile by track distance; click to inspect a position"></svg></div>
+      <details class="panel"><summary>What this comparison establishes</summary><p class="small muted">Force and yaw equilibrium, combined tire grip, hydraulic supply, steering/sideslip bounds, and the car outline inside a local road corridor are checked at each segment's start, midpoint and end. The offline planner knows the circuit; the brake allocation algorithm uses current signals only. Playback follows a calculated profile, not a transient handling simulation.</p><p class="small muted">Power, brake gains, master bores, valve settings and vehicle dimensions include research assumptions. Rate/filter effects remain in the separate timed study. Tire load sensitivity, wheel lockup recovery, roll/sideslip transients, driver confidence and competition legality are unresolved. Small lap differences require spacing and parameter-sensitivity checks.</p></details>
+    </section>
+  </div>
+</main>
+<script src="/simulator.js"></script>
+</body>
+</html>

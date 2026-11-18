@@ -1,0 +1,35 @@
+# Python environments and generated caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Regenerable simulation results, temporary tools and local research attachments
+outputs/
+tmp/
+*.prof
+
+# Local credentials, agent settings and editor state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.aws/
+.codex/
+.agents/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Optional frontend tooling
+node_modules/

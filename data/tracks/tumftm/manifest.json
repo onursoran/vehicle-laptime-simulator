@@ -1,0 +1,58 @@
+{
+  "repository": "https://github.com/TUMFTM/racetrack-database",
+  "commit": "e59595d1f3573b30d1ded6a08984935b957688e0",
+  "commit_date": "2021-09-18",
+  "retrieval_date": "2026-11-02",
+  "layout_vintage": "Historical tracks published in May 2020; the pinned September 2021 commit changes the README only. These are not verified current or 2027 layouts.",
+  "repository_license": "LGPL-3.0",
+  "underlying_map_attribution": "Copyright OpenStreetMap contributors; ODbL 1.0",
+  "underlying_map_license_url": "https://www.openstreetmap.org/copyright",
+  "csv_columns": ["x_m", "y_m", "w_tr_right_m", "w_tr_left_m"],
+  "csv_modifications": "None; downloaded source bytes are retained unchanged.",
+  "track_direction": "All three source polylines run clockwise in x/y coordinates, confirmed by negative signed enclosed area; preserve the supplied row order.",
+  "files": {
+    "Monza.csv": {
+      "source_url": "https://raw.githubusercontent.com/TUMFTM/racetrack-database/e59595d1f3573b30d1ded6a08984935b957688e0/tracks/Monza.csv",
+      "sha256": "4b5993986e67950df1b89efa03a4df02127f07b7213985917f0bad27ad3d48b6",
+      "name": "Monza (2020 dataset)",
+      "rows": 1159,
+      "closed_source_polyline_length_m": 5790.20186658398,
+      "direction": "clockwise",
+      "notes": "Grand Prix route with the first and second chicanes, Lesmo corners, Ascari, and the final long corner; no elevation or banking data."
+    },
+    "Montreal.csv": {
+      "source_url": "https://raw.githubusercontent.com/TUMFTM/racetrack-database/e59595d1f3573b30d1ded6a08984935b957688e0/tracks/Montreal.csv",
+      "sha256": "0b27cf74193ea20ebab058a300cd935d2c07bb6003a898e108febcd63a3c42be",
+      "name": "Montreal / Circuit Gilles-Villeneuve (2020 dataset)",
+      "rows": 872,
+      "closed_source_polyline_length_m": 4357.51121832487,
+      "direction": "clockwise",
+      "notes": "Grand Prix route with repeated chicanes and a hairpin. No road-surface, kerb, or wall-clearance measurements are supplied."
+    },
+    "Catalunya.csv": {
+      "source_url": "https://raw.githubusercontent.com/TUMFTM/racetrack-database/e59595d1f3573b30d1ded6a08984935b957688e0/tracks/Catalunya.csv",
+      "sha256": "8d6dc9d50e98bdecd818cb880a4b12bb5cec25d699a6b774e0b593c0f8a9da5e",
+      "name": "Barcelona-Catalunya (2020 dataset)",
+      "rows": 931,
+      "closed_source_polyline_length_m": 4649.84360429341,
+      "direction": "clockwise",
+      "notes": "Historical Grand Prix route with the final chicane and old Turn 10, before subsequent layout changes."
+    },
+    "LICENSE": {
+      "source_url": "https://raw.githubusercontent.com/TUMFTM/racetrack-database/e59595d1f3573b30d1ded6a08984935b957688e0/LICENSE",
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118"
+    },
+    "README.md": {
+      "source_url": "https://raw.githubusercontent.com/TUMFTM/racetrack-database/e59595d1f3573b30d1ded6a08984935b957688e0/README.md",
+      "sha256": "a19623b908df5b12d1d92288682a52c7f5ae0a3c148a260910b63e41212a7c8d"
+    },
+    "COPYING-GPL-3.0.txt": {
+      "source_url": "https://www.gnu.org/licenses/gpl-3.0.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    "COPYING-ODbL-1.0.txt": {
+      "source_url": "https://opendatacommons.org/licenses/odbl/odbl-10.txt",
+      "sha256": "607680718977f6f6c9607972afd98f208573f19251315ed1362a8589b51beaf5"
+    }
+  }
+}

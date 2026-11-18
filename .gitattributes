@@ -1,0 +1,10 @@
+* text=auto
+*.py text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+# Preserve the exact bytes used by the bundled dataset integrity checks.
+data/tracks/tumftm/* -text
